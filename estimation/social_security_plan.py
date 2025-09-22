@@ -7,15 +7,16 @@ import pandas as pd  # type: ignore
 data_folder = (pathlib.Path('/mnt') / 'g' / 'My Drive' / 'finance' /
                'retirement')
 input_sheet = data_folder / 'social_security_dates.xlsx'
+output_sheet = data_folder / 'social_security_balances.xlsx'
 
 
 def mainprog():
     sheet_table = pd.read_excel(input_sheet)
+    table_data = collections.defaultdict(list)
     print(sheet_table)
     for _, row in sheet_table.iterrows():
         balance = row['assets']
         return_rate = row['return']
-        table_data = collections.defaultdict(list)
         start_date = row['compute_start_date'].to_pydatetime()
         his_start_date = row['his_start_date'].to_pydatetime()
         her_start_date = row['her_start_date'].to_pydatetime()
@@ -38,7 +39,7 @@ def mainprog():
         # start_time = datetime.datetime(row['compute_start_date'])
         # print('start time', start_time)
     table = pd.DataFrame(table_data)
-    print(table)
+    table.to_excel(output_sheet)
 
 
 mainprog()
