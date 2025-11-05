@@ -1,4 +1,5 @@
 import pathlib
+from typing import List
 
 import cv2 as cv
 import numpy as np
@@ -60,9 +61,13 @@ assert input_pdf_file.exists()
 
 print('reading PDF file')
 pages = pdf_to_numpy_arrays(str(input_pdf_file), 300)
+proc_pages = []
 for x in pages:
-    print(x.shape)
+    hsv = cv.cvtColor(x, cv.COLOR_BGR2HSV)
+    hsv[:, :, 1] = 0
+    mod_x = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
+    proc_pages.append(mod_x)
 
 print('Writing PDF file')
-numpy_images_to_pdf(pages, str(output_pdf_file))
+numpy_images_to_pdf(proc_pages, str(output_pdf_file))
 print('done')
