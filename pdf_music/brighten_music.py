@@ -62,11 +62,22 @@ assert input_pdf_file.exists()
 print('reading PDF file')
 pages = pdf_to_numpy_arrays(str(input_pdf_file), 300)
 proc_pages = []
+bright_value = 180
 for x in pages:
     hsv = cv.cvtColor(x, cv.COLOR_BGR2HSV)
     hsv[:, :, 1] = 0
     mod_x = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
-    proc_pages.append(mod_x)
+    gray_image = cv.cvtColor(mod_x, cv.COLOR_BGRA2GRAY)
+    print('gray image', gray_image.shape)
+    lookup_table = np.zeros((256, ), np.uint8)
+    for i in range(256):
+        if i < bright_value:
+            frac = float(i) / float(bright_value) * 256.
+            lookup_table[i] = min(255, int(frac))
+        else:
+            lookup_table[i] = 255
+    bright_image = cv.LUT(gray_image, lookup_table)
+    proc_pages.append(bright_image)
 
 print('Writing PDF file')
 numpy_images_to_pdf(proc_pages, str(output_pdf_file))
