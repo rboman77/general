@@ -62,7 +62,7 @@ assert input_pdf_file.exists()
 print('reading PDF file')
 pages = pdf_to_numpy_arrays(str(input_pdf_file), 300)
 proc_pages = []
-bright_value = 50
+bright_value = 150
 for x in pages:
     hsv = cv.cvtColor(x, cv.COLOR_BGR2HSV)
     hsv[:, :, 1] = 0
