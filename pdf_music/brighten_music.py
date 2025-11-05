@@ -27,13 +27,42 @@ def pdf_to_numpy_arrays(pdf_path, dpi=200):
     return page_arrays
 
 
+# From copilot
+def numpy_images_to_pdf(image_arrays, output_path):
+    """
+    Converts a list of NumPy image arrays to a multi-page PDF.
+
+    Parameters:
+        image_arrays (List[np.ndarray]): List of image arrays.
+        output_path (str): Path to save the output PDF.
+    """
+    # Convert NumPy arrays to PIL Images
+    pil_images = [
+        Image.fromarray(arr.astype('uint8')).convert('RGB')
+        for arr in image_arrays
+    ]
+
+    # Save as multi-page PDF
+    if pil_images:
+        pil_images[0].save(output_path,
+                           save_all=True,
+                           append_images=pil_images[1:])
+    else:
+        raise ValueError("No images provided.")
+
+
 data_folder = (pathlib.Path('/mnt') / 'g' / 'My Drive' / 'church' /
                'music_dec_2025')
 assert data_folder.exists()
 input_pdf_file = data_folder / 'gesu_bambino_orig.pdf'
+output_pdf_file = data_folder / 'gesu_bambino_whitened.pdf'
 assert input_pdf_file.exists()
 
 print('reading PDF file')
 pages = pdf_to_numpy_arrays(str(input_pdf_file), 300)
 for x in pages:
     print(x.shape)
+
+print('Writing PDF file')
+numpy_images_to_pdf(pages, str(output_pdf_file))
+print('done')
