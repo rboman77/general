@@ -3,6 +3,7 @@ import pathlib
 import datetime
 
 import pandas as pd  # type: ignore
+import holoviews as hv
 
 data_folder = (pathlib.Path('/mnt') / 'g' / 'My Drive' / 'finance' /
                'retirement')
@@ -23,7 +24,6 @@ def mainprog():
         current_date = start_date
         num_months = 12 * row['years']
         for i in range(num_months):
-            print(i, current_date)
             withdraw = 10000
             if current_date >= his_start_date:
                 withdraw -= row['his_monthly']
@@ -34,12 +34,26 @@ def mainprog():
             balance += 30. / 365. * return_rate * balance
             table_data['label'].append(row['label'])
             table_data['date'].append(current_date)
+            table_data['epoch_date'].append(current_date.timestamp())
             table_data['withdraw'].append(withdraw)
             table_data['balance'].append(balance)
-        # start_time = datetime.datetime(row['compute_start_date'])
-        # print('start time', start_time)
     table = pd.DataFrame(table_data)
     table.to_excel(output_sheet)
+
+    hv.extension('bokeh')
+    label_set = set(list(table['label']))
+    plot_list = []
+    for label_value in label_set:
+        sub_table = table[table['label'] == label_value].copy()
+        sub_table.sort_values('epoch_date', inplace=True)
+        plot = hv.Curve(sub_table,
+                        kdims='epoch_date',
+                        vdims=['balance', 'date', 'withdraw'],
+                        label=label_value)
+        plot_list.append(
+            plot.opts(width=800, height=800, show_grid=True, tools=['hover']))
+    plot = hv.Overlay(plot_list)
+    hv.save(plot, data_folder / 'balance_plot.html')
 
 
 mainprog()
