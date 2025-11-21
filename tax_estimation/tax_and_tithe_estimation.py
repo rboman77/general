@@ -12,6 +12,8 @@ def tax_from_brackets(brack, amount):
     # First check brackets for consistency.
     for i in range(len(brack) - 1):
         assert brack[i]["high"] == brack[i + 1]["low"]
+        assert brack[i]["low"] < brack[i + 1]["low"]
+        assert brack[i]["high"] < brack[i + 1]["high"]
     return 0
 
 
@@ -22,6 +24,8 @@ def mainprog():
     tax_from_brackets(tax_data['irs_brackets'], 0.)
     print('checking ca brackets')
     tax_from_brackets(tax_data['california_brackets'], 0.)
+
+    # Some test cases.
 
 
 mainprog()
