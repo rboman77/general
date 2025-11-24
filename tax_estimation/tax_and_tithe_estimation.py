@@ -98,6 +98,7 @@ def mainprog() -> None:
 
     table = pd.DataFrame(table_data)
     print(table)
+    table.to_excel(data_folder / 'estimated_tax_15_jan_2026.xlsx')
 
 
 mainprog()
