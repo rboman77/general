@@ -1,5 +1,7 @@
+import collections
 import json
 import pathlib
+from typing import Any, List, Dict
 
 import pandas as pd  # type: ignore
 
@@ -31,7 +33,7 @@ def tax_from_brackets(brack_list, amount):
     return result
 
 
-def mainprog():
+def mainprog() -> None:
     with open(tax_json_file, 'r') as load_file:
         tax_data = json.load(load_file)
     print('checking irs brackets')
@@ -51,6 +53,48 @@ def mainprog():
     x = tax_from_brackets(tax_data['irs_brackets'], value)
     print('test', x, 'expecting',
           0.1 * tax_data['irs_brackets'][0]['high'] + 0.12 * delta)
+
+    # Add total income and capital gains.
+    total_income = 0
+    for label, entry in tax_data['normal_income']:
+        total_income += entry
+    print('total income', total_income)
+
+    total_capital_gains = 0
+    for label, entry in tax_data['capital_gains']:
+        total_capital_gains += entry
+
+    print('total capital gains', total_capital_gains)
+
+    irs_tax = tax_from_brackets(
+        tax_data['irs_brackets'],
+        total_income - tax_data['irs_standard_deduction'])
+    california_tax = tax_from_brackets(
+        tax_data['california_brackets'],
+        total_income - tax_data['california_standard_deduction'])
+
+    irs_total_paid = 0
+    for label, entry in tax_data['irs_payments']:
+        irs_total_paid += entry
+
+    california_total_paid = 0
+    for label, entry in tax_data['california_payments']:
+        california_total_paid += entry
+
+    table_data: Dict[str, Any] = collections.defaultdict(list)
+
+    table_data['account'].append('irs')
+    table_data['total_tax'].append(irs_tax)
+    table_data['paid'].append(irs_total_paid)
+    table_data['balance'].append(irs_tax - irs_total_paid)
+
+    table_data['account'].append('CA')
+    table_data['total_tax'].append(california_tax)
+    table_data['paid'].append(california_total_paid)
+    table_data['balance'].append(california_tax - california_total_paid)
+
+    table = pd.DataFrame(table_data)
+    print(table)
 
 
 mainprog()
