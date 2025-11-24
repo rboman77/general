@@ -69,9 +69,12 @@ def mainprog() -> None:
     irs_tax = tax_from_brackets(
         tax_data['irs_brackets'],
         total_income - tax_data['irs_standard_deduction'])
+
+    capital_gain_tax = tax_from_brackets(tax_data['irs_capital_gain_brackets'],
+                                         total_capital_gains)
     california_tax = tax_from_brackets(
-        tax_data['california_brackets'],
-        total_income - tax_data['california_standard_deduction'])
+        tax_data['california_brackets'], total_income + total_capital_gains -
+        tax_data['california_standard_deduction'])
 
     irs_total_paid = 0
     for label, entry in tax_data['irs_payments']:
@@ -84,7 +87,7 @@ def mainprog() -> None:
     table_data: Dict[str, Any] = collections.defaultdict(list)
 
     table_data['account'].append('irs')
-    table_data['total_tax'].append(irs_tax)
+    table_data['total_tax'].append(irs_tax + capital_gain_tax)
     table_data['paid'].append(irs_total_paid)
     table_data['balance'].append(irs_tax - irs_total_paid)
 
