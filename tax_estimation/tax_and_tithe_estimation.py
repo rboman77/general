@@ -96,6 +96,21 @@ def mainprog() -> None:
     table_data['paid'].append(california_total_paid)
     table_data['balance'].append(california_tax - california_total_paid)
 
+    # Add tithing income not counting compardia and not counting panasonic Jan-Sep.
+    tithe_income = 0
+    for label, entry in tax_data['normal_income']:
+        if label == 'comkardia':
+            print('skipping comkardia for tithing')
+        elif label == "panasonic":
+            print('adjusting tithing for months')
+            tithe_income += entry * 3. / 12.
+        else:
+            tithe_income += entry
+    table_data['account'].append('tithe')
+    table_data['total_tax'].append(tithe_income / 10.)
+    table_data['paid'].append(0.)
+    table_data['balance'].append(tithe_income / 10.)
+
     table = pd.DataFrame(table_data)
     print(table)
     table.to_excel(data_folder / 'estimated_tax_15_jan_2026.xlsx')
