@@ -29,7 +29,7 @@ def tax_from_brackets(brack_list, amount):
             pass
         else:
             assert False
-        print('after brack', brack, amount, result)
+        # print('after brack', brack, amount, result)
     return result
 
 
@@ -106,6 +106,9 @@ def mainprog() -> None:
             tithe_income += entry * 3. / 12.
         else:
             tithe_income += entry
+    for label, entry in tax_data['capital_gains']:
+        tithe_income += entry
+
     table_data['account'].append('tithe')
     table_data['total_tax'].append(tithe_income / 10.)
     table_data['paid'].append(0.)
