@@ -109,6 +109,8 @@ def mainprog() -> None:
     for label, entry in tax_data['capital_gains']:
         tithe_income += entry
 
+    # Account to amount paid with federal and state tax returns.
+
     table_data['account'].append('tithe')
     table_data['total_tax'].append(tithe_income / 10.)
     table_data['paid'].append(0.)
