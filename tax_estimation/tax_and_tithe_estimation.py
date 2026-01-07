@@ -109,11 +109,13 @@ def mainprog() -> None:
     for label, entry in tax_data['capital_gains']:
         tithe_income += entry
 
-    # Account to amount paid with federal and state tax returns.
+    tithe_payment = 0
+    for label, entry in tax_data['tithe_payments']:
+        tithe_payment += entry
 
     table_data['account'].append('tithe')
     table_data['total_tax'].append(tithe_income / 10.)
-    table_data['paid'].append(0.)
+    table_data['paid'].append(tithe_payment)
     table_data['balance'].append(tithe_income / 10.)
 
     table = pd.DataFrame(table_data)
