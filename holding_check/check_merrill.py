@@ -18,10 +18,11 @@ def extract_paren_value(str_num: str) -> float:
 
 
 def load_file(file_path: pathlib.Path) -> pd.DataFrame:
-    return pd.DataFrame({'x': [1]})
+    """Load a CSV file and return as a dataframe. Convert numbers in
+    parens to negative values.  Parse dates."""
+    raw_table = pd.read_csv(file_path)
+    return raw_table
 
 
-str_numbers = ('(100)', '200', '300', '(1.25)', '(25.1)', '77')
-
-for x in str_numbers:
-    print(x, extract_paren_value(x))
+for csv_file in data_folder.glob('*.csv'):
+    print(csv_file)
