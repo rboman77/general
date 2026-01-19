@@ -44,7 +44,7 @@ def load_file(file_path: pathlib.Path) -> pd.DataFrame:
     raw_table = pd.read_csv(file_path)
     table_data: Dict[str, List[Any]] = collections.defaultdict(list)
     for _, row in raw_table.iterrows():
-        date_value = row['Settlement Date']
+        date_value = row['Trade Date']
         decoded_date = datetime.datetime.strptime(date_value, '%m/%d/%Y')
         table_data['date'].append(decoded_date)
         table_data['amount'].append(extract_paren_value(row['Amount ($)']))
