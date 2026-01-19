@@ -3,7 +3,7 @@ import datetime
 import json
 import pathlib
 import re
-from typing import Any, List, Dict, Optional
+from typing import Any, List, Dict, Optional, Set
 
 import pandas as pd  # type: ignore
 
@@ -50,7 +50,7 @@ def load_file(file_path: pathlib.Path) -> pd.DataFrame:
         table_data['amount'].append(extract_paren_value(row['Amount ($)']))
         # for key in ('Type', 'Description 1 ', 'Description 2'):
         #    table_data[key].append(row[key])
-        table_data['trans_type'].append(row['Description 1 '])
+        table_data['trans_type'].append(row['Description 1 '].strip())
         table_data['company'].append(row['Symbol/CUSIP #'])
     return pd.DataFrame(table_data)
 
@@ -62,4 +62,18 @@ for csv_file in data_folder.glob('*.csv'):
         combined_table = loaded_table
     else:
         combined_table = pd.concat((combined_table, loaded_table))
+assert combined_table is not None
+print(min(combined_table['date']), max(combined_table['date']))
+print('entries:', len(combined_table.index))
 print(combined_table)
+
+# Check to see if any company had a purchase, sale, and dividend in the year.
+trans_set: Dict[str, Set[str]] = collections.defaultdict(set)
+for _, row in combined_table.iterrows():
+    trans_type = row['trans_type']
+    if trans_type in ('Purchase', 'Sale', 'Dividend'):
+        trans_set[row['company']].add(trans_type)
+
+for key, value in trans_set.items():
+    if len(value) == 3:
+        print(key, value)
