@@ -67,13 +67,55 @@ print(min(combined_table['date']), max(combined_table['date']))
 print('entries:', len(combined_table.index))
 print(combined_table)
 
-# Check to see if any company had a purchase, sale, and dividend in the year.
-trans_set: Dict[str, Set[str]] = collections.defaultdict(set)
+# For each divident, find the purchase with the greatest date that is
+# <= the divident date.  Also find the sale with the smallest date
+# that is >= the dividend date.
+table_data: Dict[str, List[Any]] = collections.defaultdict(list)
 for _, row in combined_table.iterrows():
     trans_type = row['trans_type']
-    if trans_type in ('Purchase', 'Sale', 'Dividend'):
-        trans_set[row['company']].add(trans_type)
+    if trans_type == 'Dividend':
+        div_date = row['date']
+        div_company = row['company']
+        greatest_purchase: Optional[datetime.datetime] = None
+        least_sale: Optional[datetime.datetime] = None
+        for _skip, check_row in combined_table.iterrows():
+            if check_row['company'] != div_company:
+                continue
+            if check_row['trans_type'] == 'Purchase':
+                if check_row['date'] <= div_date:
+                    if greatest_purchase is None:
+                        greatest_purchase = check_row['date']
+                    else:
+                        greatest_purchase = max(greatest_purchase,
+                                                check_row['date'])
+            elif check_row['trans_type'] == 'Sale':
+                if check_row['date'] >= div_date:
+                    if least_sale is None:
+                        least_sale = check_row['date']
+                    else:
+                        least_sale = min(least_sale, check_row['date'])
+        if greatest_purchase is None:
+            greatest_purchase = datetime.datetime(year=2025, month=1, day=1)
+        if least_sale is None:
+            least_sale = datetime.datetime(year=2025, month=12, day=31)
+        duration = least_sale - greatest_purchase
+        duration_days = (duration.total_seconds() / 60. / 60. / 24.)
+        table_data['company'].append(div_company)
+        table_data['amount'].append(row['amount'])
+        table_data['duration_days'].append(duration_days)
+        table_data['purchase'].append(greatest_purchase)
+        table_data['sale'].append(least_sale)
+        table_data['div date'].append(div_date)
 
-for key, value in trans_set.items():
-    if len(value) == 3:
-        print(key, value)
+qualified_table = pd.DataFrame(table_data)
+qualified_table.sort_values('duration_days', inplace=True)
+print(qualified_table)
+print('unqualified')
+print(qualified_table[qualified_table['duration_days'] < 60])
+unqual_table = qualified_table[qualified_table['duration_days'] < 60].copy()
+total_unqual = 0.
+for _, row in unqual_table.iterrows():
+    total_unqual += row['amount']
+print('total unqual', total_unqual)
+
+unqual_table.to_excel(data_folder / 'short_holding_period.xlsx')
