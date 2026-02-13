@@ -12,7 +12,7 @@ data_folder = (pathlib.Path('/mnt') / 'g' / 'My Drive' / 'finance' /
 
 
 def read_csv_file(file_path) -> pd.DataFrame:
-    result = pd.read_csv(file_path)
+    result = pd.read_csv(file_path, skipinitialspace=True)
     result = result.fillna(0)
     if 'Date' not in result.columns:
         result['Date'] = result['Run Date']
