@@ -28,8 +28,6 @@ def read_csv_file(file_path) -> pd.DataFrame:
     return result
 
 
-#qualified_div_table = pd.read_csv(data_folder / 'qualified_div.csv')
-#qualified_div_table = qualified_div_table.fillna(0.)
 qualified_div_table = read_csv_file(data_folder / 'qualified_div.csv')
 sub_table = qualified_div_table[qualified_div_table['1b Qualified Dividends'] >
                                 0]
