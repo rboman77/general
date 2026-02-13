@@ -18,7 +18,7 @@ def read_csv_file(file_path) -> pd.DataFrame:
         result['Date'] = result['Run Date']
     date_list = []
     for _, row in result.iterrows():
-        if re.search('[0-9]{2}/[0-9]{2}/[0-9]{2}', row['Date']):
+        if re.search('[0-9]{2}/[0-9]{2}/[0-9]{2}$', row['Date']):
             date_format = '%m/%d/%y'
         else:
             date_format = '%m/%d/%Y'
@@ -35,3 +35,9 @@ sub_table = sub_table[['symbol', 'Date', '1b Qualified Dividends']].copy()
 print(sub_table)
 for _, row in sub_table.iterrows():
     print(type(row['Date']))
+
+trans_table = read_csv_file(data_folder / 'History_for_Account_Z24652142 .csv')
+print(trans_table)
+
+sub_table.to_excel(data_folder / 'processed_qualified_div.xlsx')
+trans_table.to_excel(data_folder / 'processed_transactions.xlsx')
