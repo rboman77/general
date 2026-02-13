@@ -8,7 +8,7 @@ from typing import Any, List, Dict, Optional, Set
 import pandas as pd  # type: ignore
 
 data_folder = (pathlib.Path('/mnt') / 'g' / 'My Drive' / 'finance' /
-               'holding_period_2025')
+               '2025_tax' / 'holding_period_2025')
 
 
 def to_num_strip_commas(input_str: str) -> float:
