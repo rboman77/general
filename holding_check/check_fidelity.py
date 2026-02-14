@@ -36,7 +36,22 @@ print(sub_table)
 for _, row in sub_table.iterrows():
     print(type(row['Date']))
 
-trans_table = read_csv_file(data_folder / 'History_for_Account_Z24652142 .csv')
+trans_table_1 = read_csv_file(data_folder /
+                              'History_for_Account_Z24652142 .csv')
+trans_table_2 = pd.read_excel(data_folder /
+                              'History_for_Account_Z24652142_feb_2026.xlsx')
+trans_table = pd.concat([trans_table_1, trans_table_2])
+# Convert string dates to timestamps.
+replace_dates: List[Any] = []
+trans_table = trans_table.sort_values(['Symbol', 'Date'])
+for _, row in trans_table.iterrows():
+    if isinstance(row['Run Date'], str):
+        replace_dates.append(
+            datetime.datetime.strptime(row['Run Date'].strip(), '%m/%d/%Y'))
+    else:
+        replace_dates.append(row['Run Date'])
+trans_table['Run Date'] = replace_dates
+trans_table['Date'] = replace_dates
 print(trans_table)
 
 sub_table.to_excel(data_folder / 'processed_qualified_div.xlsx')
