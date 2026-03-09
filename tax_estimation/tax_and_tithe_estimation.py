@@ -7,7 +7,7 @@ import pandas as pd  # type: ignore
 
 data_folder = (pathlib.Path('/mnt') / 'g' / 'My Drive' / 'finance' /
                'retirement')
-tax_json_file = data_folder / 'tax_estimation_2025.json'
+tax_json_file = data_folder / 'tax_estimation_2026.json'
 
 
 def tax_from_brackets(brack_list, amount):
