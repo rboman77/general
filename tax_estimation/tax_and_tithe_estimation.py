@@ -1,6 +1,7 @@
 import collections
 import json
 import pathlib
+import re
 from typing import Any, List, Dict
 
 import pandas as pd  # type: ignore
@@ -99,11 +100,15 @@ def mainprog() -> None:
     # Add tithing income not counting compardia and not counting panasonic Jan-Sep.
     tithe_income = 0
     for label, entry in tax_data['normal_income']:
-        if label == 'comkardia':
-            print('skipping comkardia for tithing')
-        elif label == "panasonic":
-            print('adjusting tithing for months')
-            tithe_income += entry * 3. / 12.
+        # if label == 'comkardia':
+        #     print('skipping comkardia for tithing')
+        # elif label == "panasonic":
+        #     print('adjusting tithing for months')
+        #     tithe_income += entry * 3. / 12.
+        # else:
+        #     tithe_income += entry
+        if re.search('standard_deduction', label):
+            pass
         else:
             tithe_income += entry
     for label, entry in tax_data['capital_gains']:
