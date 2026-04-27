@@ -121,7 +121,7 @@ def mainprog() -> None:
     table_data['account'].append('tithe')
     table_data['total_tax'].append(tithe_income / 10.)
     table_data['paid'].append(tithe_payment)
-    table_data['balance'].append(tithe_income / 10.)
+    table_data['balance'].append(tithe_income / 10. - tithe_payment)
 
     table = pd.DataFrame(table_data)
     print(table)
