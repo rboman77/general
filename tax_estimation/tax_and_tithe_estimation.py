@@ -67,6 +67,7 @@ def mainprog() -> None:
 
     print('total capital gains', total_capital_gains)
 
+    normal_inc_before_ded = total_income
     irs_tax = tax_from_brackets(
         tax_data['irs_brackets'],
         total_income - tax_data['irs_standard_deduction'])
@@ -103,20 +104,9 @@ def mainprog() -> None:
     table_data['paid'].append(california_total_paid)
     table_data['balance'].append(california_tax - california_total_paid)
 
-    # Add tithing income not counting compardia and not counting panasonic Jan-Sep.
     tithe_income = 0
     for label, entry in tax_data['normal_income']:
-        # if label == 'comkardia':
-        #     print('skipping comkardia for tithing')
-        # elif label == "panasonic":
-        #     print('adjusting tithing for months')
-        #     tithe_income += entry * 3. / 12.
-        # else:
-        #     tithe_income += entry
-        if re.search('standard_deduction', label):
-            pass
-        else:
-            tithe_income += entry
+        tithe_income += entry
     for label, entry in tax_data['capital_gains']:
         tithe_income += entry
 
@@ -128,6 +118,16 @@ def mainprog() -> None:
     table_data['total_tax'].append(tithe_income / 10.)
     table_data['paid'].append(tithe_payment)
     table_data['balance'].append(tithe_income / 10. - tithe_payment)
+
+    table_data['account'].append('normal income before ded')
+    table_data['total_tax'].append(0)
+    table_data['paid'].append(normal_inc_before_ded)
+    table_data['balance'].append(0)
+
+    table_data['account'].append('capital gains')
+    table_data['total_tax'].append(0)
+    table_data['paid'].append(total_capital_gains)
+    table_data['balance'].append(0)
 
     table_data['account'].append('social security payments')
     table_data['total_tax'].append(0)
