@@ -73,9 +73,15 @@ def mainprog() -> None:
 
     capital_gain_tax = tax_from_brackets(tax_data['irs_capital_gain_brackets'],
                                          total_capital_gains)
+
+    social_security_income = 0
+    for label, entry in tax_data['normal_income']:
+        if re.search('^social security', label, re.IGNORECASE):
+            social_security_income += entry
+
     california_tax = tax_from_brackets(
         tax_data['california_brackets'], total_income + total_capital_gains -
-        tax_data['california_standard_deduction'])
+        -social_security_income - tax_data['california_standard_deduction'])
 
     irs_total_paid = 0
     for label, entry in tax_data['irs_payments']:
@@ -122,6 +128,11 @@ def mainprog() -> None:
     table_data['total_tax'].append(tithe_income / 10.)
     table_data['paid'].append(tithe_payment)
     table_data['balance'].append(tithe_income / 10. - tithe_payment)
+
+    table_data['account'].append('social security payments')
+    table_data['total_tax'].append(0)
+    table_data['paid'].append(social_security_income)
+    table_data['balance'].append(0)
 
     table = pd.DataFrame(table_data)
     print(table)
