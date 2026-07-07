@@ -11,7 +11,7 @@ data_folder = (pathlib.Path('/mnt') / 'g' / 'My Drive' / 'finance' /
 tax_json_file = data_folder / 'tax_estimation_2026.json'
 
 
-def tax_from_brackets(brack_list, amount):
+def tax_from_brackets(brack_list, amount, bracket_offset=0.):
     # Sanity check on brackets.
     for i in range(len(brack_list) - 1):
         assert brack_list[i]["high"] == brack_list[i + 1]["low"]
@@ -20,13 +20,16 @@ def tax_from_brackets(brack_list, amount):
 
     result = 0.
     for brack in brack_list:
-        if amount > brack["low"] and amount >= brack["high"]:
+        if amount > (brack["low"] + bracket_offset) and amount >= (
+                brack["high"] + bracket_offset):
             result += brack["rate"] * (brack["high"] - brack["low"])
-        elif amount > brack["low"] and amount < brack["high"]:
-            result += brack["rate"] * (amount - brack["low"])
-        elif amount >= brack["high"]:
+        elif amount > (brack["low"] + bracket_offset) and amount < (
+                brack["high"] + bracket_offset):
+            result += brack["rate"] * (amount -
+                                       (brack["low"] + bracket_offset))
+        elif amount >= brack["high"] + bracket_offset:
             pass
-        elif amount <= brack["low"]:
+        elif amount <= brack["low"] + bracket_offset:
             pass
         else:
             assert False
