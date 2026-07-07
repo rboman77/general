@@ -18,18 +18,20 @@ def tax_from_brackets(brack_list, amount, bracket_offset=0.):
         assert brack_list[i]["low"] < brack_list[i + 1]["low"]
         assert brack_list[i]["high"] < brack_list[i + 1]["high"]
 
+    # Bracket_offset will be a positive number. So we subtract it to
+    # make the thresholds smaller.
     result = 0.
     for brack in brack_list:
-        if amount > (brack["low"] + bracket_offset) and amount >= (
-                brack["high"] + bracket_offset):
+        if amount > (brack["low"] - bracket_offset) and amount >= (
+                brack["high"] - bracket_offset):
             result += brack["rate"] * (brack["high"] - brack["low"])
-        elif amount > (brack["low"] + bracket_offset) and amount < (
-                brack["high"] + bracket_offset):
+        elif amount > (brack["low"] - bracket_offset) and amount < (
+                brack["high"] - bracket_offset):
             result += brack["rate"] * (amount -
-                                       (brack["low"] + bracket_offset))
-        elif amount >= brack["high"] + bracket_offset:
+                                       (brack["low"] - bracket_offset))
+        elif amount >= brack["high"] - bracket_offset:
             pass
-        elif amount <= brack["low"] + bracket_offset:
+        elif amount <= brack["low"] - bracket_offset:
             pass
         else:
             assert False
@@ -73,11 +75,15 @@ def mainprog() -> None:
     normal_inc_before_ded = total_income
     irs_tax = tax_from_brackets(
         tax_data['irs_brackets'],
-        total_income - tax_data['irs_standard_deduction'])
+        max(0., total_income - tax_data['irs_standard_deduction']))
 
-    capital_gain_tax = tax_from_brackets(tax_data['irs_capital_gain_brackets'],
-                                         total_capital_gains)
+    capital_gain_tax = tax_from_brackets(
+        tax_data['irs_capital_gain_brackets'], total_capital_gains,
+        max(0., total_income - tax_data['irs_standard_deduction']))
 
+    print('adjusted normal income',
+          total_income - tax_data['irs_standard_deduction'])
+    print('capital gains tax', capital_gain_tax)
     social_security_income = 0
     for label, entry in tax_data['normal_income']:
         if re.search('^social security', label, re.IGNORECASE):
