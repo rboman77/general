@@ -29,22 +29,27 @@ def mainprog() -> None:
     years_to_wait = 73 - rmd_data['current_age']
     print('years to wait', years_to_wait)
     print('current balance', rmd_data['current_value'])
-    adjusted_balance = rmd_data['current_value'] * (rmd_data['growth_rate']**
-                                                    years_to_wait)
+    adjusted_balance = rmd_data['current_value']
     print('adjusted balance', adjusted_balance)
-    for i in range(30):
+    table_data: Dict[str, List[Any]] = collections.defaultdict(list)
+    for i in range(40):
         age = i + rmd_data['current_age']
         if age < 73:
+            adjusted_balance *= rmd_data['growth_rate']
             continue
         sub_table = rmd_factor_table[rmd_factor_table['Age'] == age]
         assert len(sub_table.index) == 1
         age_factor = sub_table.iloc[0][dist_period_key]
-        print(i, age, age_factor)
+        rmd_value = adjusted_balance / age_factor
+        table_data['age'].append(age)
+        table_data['factor'].append(age_factor)
+        table_data['RMD'].append(rmd_value)
+        table_data['balance'].append(adjusted_balance)
+        adjusted_balance -= rmd_value
+        adjusted_balance *= rmd_data['growth_rate']
 
-    # For each year:
-    #    Use the table for this age and get the RMD.
-    #    Reduce the balance by this amount.
-    #    Increase the balance by the increase factor.
+    rmd_table = pd.DataFrame(table_data)
+    print(rmd_table)
 
 
 mainprog()
